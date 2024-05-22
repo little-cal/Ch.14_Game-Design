@@ -95,21 +95,21 @@ class MyGame(arcade.Window):
     #     self.BB8.center_x = x
     #     self.BB8.center_y = y
 
-    def on_key_press(self, key, modifiers):
-        if key == arcade.key.LEFT:
-            self.BB8.change_x = -SPEED
-        elif key == arcade.key.RIGHT:
-            self.BB8.change_x = SPEED
-        elif key == arcade.key.UP:
-            self.BB8.change_y = SPEED
-        elif key == arcade.key.DOWN:
-            self.BB8.change_y = -SPEED
-
-    def on_key_release(self, key, modifiers):
-        if key == arcade.key.RIGHT or key == arcade.key.LEFT:
-            self.BB8.change_x = 0
-        elif key == arcade.key.UP or key == arcade.key.DOWN:
-            self.BB8.change_y = 0
+    # def on_key_press(self, key, modifiers):
+    #     if key == arcade.key.LEFT:
+    #         self.BB8.change_x = -SPEED
+    #     elif key == arcade.key.RIGHT:
+    #         self.BB8.change_x = SPEED
+    #     elif key == arcade.key.UP:
+    #         self.BB8.change_y = SPEED
+    #     elif key == arcade.key.DOWN:
+    #         self.BB8.change_y = -SPEED
+    #
+    # def on_key_release(self, key, modifiers):
+    #     if key == arcade.key.RIGHT or key == arcade.key.LEFT:
+    #         self.BB8.change_x = 0
+    #     elif key == arcade.key.UP or key == arcade.key.DOWN:
+    #         self.BB8.change_y = 0
 
 
 #-----Main Function--------

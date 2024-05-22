@@ -11,14 +11,15 @@ import math
 BB8_scale = 0.3
 trooper_scale = 0.1
 bullet_scale = 1
+wall_scale = .5
 SPEED = 5
-ANGLE_SPEED = 5
+ANGLE_SPEED = 7
 BULLET_SPEED = 10
 E_BULLET_SPEED = 5
 SW = 800
 SH = 600
 EXPLOSION_TEXTURE_COUNT = 50
-trooper_c = [0, 15, 40, 70, 0]
+trooper_c = [0, 1, 2, 3, 0]
 
 INSTRUCTIONS = 0
 LEVEL_1 = 1
@@ -149,6 +150,7 @@ class MyGame(arcade.Window):
             self.player_list.draw()
             self.explosions.draw()
             self.ebullets.draw()
+            self.walls.draw()
 
             arcade.draw_lrtb_rectangle_filled(SW - 95, SW, SH, SH - 35, arcade.color.WHITE)
             output = f"Level: {self.current_state}"
@@ -201,6 +203,10 @@ class MyGame(arcade.Window):
                     trooper.kill()
                     self.score += 4
 
+                bullet_hit_wall = arcade.check_for_collision_with_list(bullet, self.walls)
+                if len(bullet_hit_wall) > 0 :
+                    self.bullet.kill()
+
             for trooper in self.trooper_list:
                 if random.randrange(800) == 0:
                     ebullet = EnemyBullet()
@@ -208,12 +214,32 @@ class MyGame(arcade.Window):
                     ebullet.center_y = trooper.center_y
                     self.ebullets.append(ebullet)
 
+                trooper_hit_wall = arcade.check_for_collision_with_list(trooper, self.walls)
+                if len(trooper_hit_wall) > 0:
+                    if trooper.center_x < trooper_hit_wall[0].left or trooper.center_x > trooper_hit_wall[0].right:
+                        trooper.dx *= -1
+                    elif trooper.center_y < trooper_hit_wall[0].bottom or trooper.center_y > trooper_hit_wall[0].top:
+                        trooper.dy *= -1
+
+                    trooper_hit_wall.clear()
+
             bb8_bombed = arcade.check_for_collision_with_list(self.BB8, self.ebullets)
             if len(bb8_bombed) > 0:
                 arcade.play_sound(self.BB8.explosion_sound)
                 self.BB8.kill()
                 bb8_bombed[0].kill()
                 self.current_state = 4
+
+            bb8_hit_wall = arcade.check_for_collision_with_list(self.BB8, self.walls)
+            if len(bb8_hit_wall) > 0:
+                self.BB8.speed *= -1
+                bb8_hit_wall.clear()
+
+
+            for ebullet in self.ebullets:
+                ebullet_hit_wall = arcade.check_for_collision_with_list(ebullet, self.walls)
+                if len(ebullet_hit_wall) > 0:
+                    ebullet.kill()
 
     def setup(self):
 
@@ -232,6 +258,7 @@ class MyGame(arcade.Window):
         self.bullets = arcade.SpriteList()
         self.explosions = arcade.SpriteList()
         self.ebullets = arcade.SpriteList()
+        self.walls = arcade.SpriteList()
 
 
         self.BB8 = Player()
@@ -242,12 +269,29 @@ class MyGame(arcade.Window):
         for i in range(1, trooper_c[self.current_state] + 1):
             trooper = Trooper()
             if i % 2 == 0:
-                trooper.center_x = random.randrange(trooper.w, int(SW/3))
+                trooper.center_x = random.randrange(trooper.w, int(SW/4))
                 trooper.center_y = random.randrange(trooper.h, SH - trooper.h)
             else:
-                trooper.center_x = random.randrange(int(SW * 2/3), SW - trooper.w)
+                trooper.center_x = random.randrange(int(SW * 3/4), SW - trooper.w)
                 trooper.center_y = random.randrange(trooper.h, SH - trooper.h)
             self.trooper_list.append(trooper)
+
+        for y in range(5):
+            wall = arcade.Sprite("Images/wall.png", wall_scale)
+            wall.center_x = int(SW / 3)
+            wall.center_y = int(SH / 4) + y * wall.width
+            self.walls.append(wall)
+
+        coordinate_list = [[469, 278],
+                           [533, 278],
+                           [533, 214],
+                           [469, 214]]
+        for coordinate in coordinate_list:
+            wall = arcade.Sprite("Images/wall.png", wall_scale)
+            wall.center_x = coordinate[0]
+            wall.center_y = coordinate[1]
+            self.walls.append(wall)
+
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.LEFT and self.game_running:
@@ -284,7 +328,7 @@ class MyGame(arcade.Window):
 
 # -----Main Function--------
 def main():
-    window = MyGame(SW, SH, "BB8 Aiming")
+    window = MyGame(SW, SH, "BB8 Walls")
     arcade.run()
 
 
